@@ -1,0 +1,2 @@
+max-line-length = 100
+exclude = .venv, migrations, manage.py
