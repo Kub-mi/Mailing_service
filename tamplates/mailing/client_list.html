@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Получатели{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Получатели</h1>
+  {% if user.is_authenticated %}
+    <a class="btn btn-primary" href="{% url 'mailing:client_create' %}">Добавить получателя</a>
+  {% endif %}
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Email</th>
+      <th>ФИО</th>
+      <th>Комментарий</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in clients %}
+      <tr>
+        <td><a href="{% url 'mailing:client_detail' c.pk %}">{{ c.email }}</a></td>
+        <td>{{ c.full_name }}</td>
+        <td>{{ c.comment|default:"—" }}</td>
+        <td class="text-end">
+          {% if c.owner == user or perms.mailing.view_all_clients %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'mailing:client_update' c.pk %}">Изменить</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'mailing:client_delete' c.pk %}">Удалить</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">Список пуст</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+{% endblock %}

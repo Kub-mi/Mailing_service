@@ -28,7 +28,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     manager_perm = 'mailing.views_all_clients'
 
 
-class ClientDeliteView(LoginRequiredMixin, DetailView):
+class ClientDeliteView(LoginRequiredMixin, DeleteView):
     model = Client
     template_name = 'mailing/confirm_delete.html'
     success_url = reverse_lazy('mailing:client_list')
