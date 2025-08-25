@@ -12,7 +12,7 @@ class Client(models.Model):
         verbose_name = 'получатель'
         verbose_name_plural = "получатели"
         permissions =[
-            ('view_all_clieents', 'Can view all clients (manager)'),
+            ('view_all_clients', 'Can view all clients (manager)'),
         ]
 
     def __str__(self):
