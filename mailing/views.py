@@ -2,12 +2,13 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Client, Message
-from .forms import ClientForm, MessageForm
+from .models import Client, Message, Mailing
+from .forms import ClientForm, MessageForm, MailingForm
 
 
 PERM_VIEW_ALL = "mailing.view_all_clients"
 PERM_VIEW_ALL_MESSAGES = "mailing.view_all_messages"
+PERM_VIEW_ALL_MAILINGS = "mailing.view_all_mailings"
 
 
 class ClientListView(LoginRequiredMixin, ListView):
@@ -130,5 +131,74 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.user.has_perm(PERM_VIEW_ALL_MESSAGES):
+            return qs
+        return qs.filter(owner=self.request.user)
+
+
+class MailingListView(LoginRequiredMixin, ListView):
+    model = Mailing
+    template_name = "mailing/mailing_list.html"
+    context_object_name = "mailings"
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = (super()
+              .get_queryset()
+              .select_related("message", "owner")
+              .prefetch_related("recipients"))
+        if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
+            return qs
+        return qs.filter(owner=self.request.user)
+
+
+class MailingDetailView(LoginRequiredMixin, DetailView):
+    model = Mailing
+    template_name = "mailing/mailing_detail.html"
+
+    def get_queryset(self):
+        qs = (super()
+              .get_queryset()
+              .select_related("message", "owner")
+              .prefetch_related("recipients"))
+        if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
+            return qs
+        return qs.filter(owner=self.request.user)
+
+
+class MailingCreateView(LoginRequiredMixin, CreateView):
+    model = Mailing
+    form_class = MailingForm
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailing_list")
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.owner = self.request.user
+        obj.save()
+        form.save_m2m()
+        return super().form_valid(form)
+
+
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
+    model = Mailing
+    form_class = MailingForm
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailing_list")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
+            return qs
+        return qs.filter(owner=self.request.user)
+
+
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
+    model = Mailing
+    template_name = "mailing/confirm_delete.html"  # можно общий шаблон удаления
+    success_url = reverse_lazy("mailing:mailing_list")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
             return qs
         return qs.filter(owner=self.request.user)

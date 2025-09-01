@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Рассылки{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Рассылки</h1>
+  <a class="btn btn-primary" href="{% url 'mailing:mailing_create' %}">Создать рассылку</a>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Статус</th>
+      <th>Период</th>
+      <th>Сообщение</th>
+      <th>Получателей</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in mailings %}
+      <tr>
+        <td><a href="{% url 'mailing:mailing_detail' m.pk %}">#{{ m.pk }}</a></td>
+        <td>{{ m.status }}</td>
+        <td>{{ m.start_at }} — {{ m.finish_at }}</td>
+        <td>{{ m.message.subject }}</td>
+        <td>{{ m.recipients.count }}</td>
+        <td class="text-end">
+          {% if m.owner == user or perms.mailing.view_all_mailings %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'mailing:mailing_update' m.pk %}">Изменить</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'mailing:mailing_delete' m.pk %}">Удалить</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">Список пуст</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Рассылка #{{ object.pk }}{% endblock %}
+{% block content %}
+<h1>Рассылка #{{ object.pk }}</h1>
+<div class="mb-3">
+  <div><strong>Статус:</strong> {{ object.status }}</div>
+  <div><strong>Период:</strong> {{ object.start_at }} — {{ object.finish_at }}</div>
+  <div><strong>Сообщение:</strong> {{ object.message.subject }}</div>
+  <div><strong>Получатели ({{ object.recipients.count }}):</strong>
+    <ul class="mb-0">
+      {% for r in object.recipients.all %}
+        <li>{{ r.full_name }} &lt;{{ r.email }}&gt;</li>
+      {% empty %}<li>—</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+
+<a class="btn btn-outline-secondary" href="{% url 'mailing:mailing_list' %}">Назад</a>
+{% if object.owner == user or perms.mailing.view_all_mailings %}
+  <a class="btn btn-primary" href="{% url 'mailing:mailing_update' object.pk %}">Изменить</a>
+  <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a>
+{% endif %}
+{% endblock %}
