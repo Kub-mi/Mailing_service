@@ -33,3 +33,31 @@ class Message(models.Model):
 
     def __str__(self):
         return self.subject
+
+
+class Mailing (models.Model):
+    STATUS_CREATED = "Создана"
+    STATUS_RUNNING = "Запущена"
+    STATUS_FINISHED = "Завершена"
+    STATUS_CHOICES = [
+        (STATUS_CREATED, "Создана"),
+        (STATUS_RUNNING, "Запущена"),
+        (STATUS_FINISHED, "Завершена"),
+    ]
+
+    start_at = models.DateTimeField(verbose_name='Дата/время первой отправки')
+    finish_at = models.DateTimeField(verbose_name='Дата/время окончания отправок')
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_CREATED, verbose_name='Статус')
+    message = models.ForeignKey('mailing.Message', on_delete=models.CASCADE, verbose_name='Сообщение')
+    recipients = models.ManyToManyField('mailing.Client', blank=True, related_name='mailings', verbose_name='Получатели')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='messages', verbose_name='Владелец')
+
+    class Meta:
+        verbose_name = "рассылка"
+        verbose_name_plural = "рассылки"
+        permissions = [
+            ("view_all_mailings", "Can view all mailings (manager)"),
+        ]
+
+    def __str__(self):
+        return f'Рассылка #{self.pk} - {self.status}'
