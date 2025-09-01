@@ -50,7 +50,7 @@ class Mailing (models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_CREATED, verbose_name='Статус')
     message = models.ForeignKey('mailing.Message', on_delete=models.CASCADE, verbose_name='Сообщение')
     recipients = models.ManyToManyField('mailing.Client', blank=True, related_name='mailings', verbose_name='Получатели')
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='messages', verbose_name='Владелец')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Владелец")
 
     class Meta:
         verbose_name = "рассылка"
