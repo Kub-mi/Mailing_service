@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Сообщения{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Сообщения</h1>
+  <a class="btn btn-primary" href="{% url 'mailing:message_create' %}">Создать сообщение</a>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Тема</th>
+      <th>Длина</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in messages %}
+      <tr>
+        <td><a href="{% url 'mailing:message_detail' m.pk %}">{{ m.subject }}</a></td>
+        <td>{{ m.body|length }}</td>
+        <td class="text-end">
+          {% if m.owner == user or perms.mailing.view_all_messages %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'mailing:message_update' m.pk %}">Изменить</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'mailing:message_delete' m.pk %}">Удалить</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">Список пуст</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -9,6 +9,7 @@ from .forms import ClientForm, MessageForm
 PERM_VIEW_ALL = "mailing.view_all_clients"
 PERM_VIEW_ALL_MESSAGES = "mailing.view_all_messages"
 
+
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     template_name = 'mailing/client_list.html'
@@ -59,7 +60,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         return qs.filter(owner=self.request.user)
 
 
-class ClientDeliteView(LoginRequiredMixin, DeleteView):
+class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     template_name = 'mailing/confirm_delete.html'
     success_url = reverse_lazy('mailing:client_list')
@@ -107,6 +108,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         obj.save()
         return super().form_valid(form)
 
+
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
@@ -122,7 +124,7 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
-    template_name = 'mailing/message_delete.html'
+    template_name = 'mailing/confirm_delete.html'
     success_url = reverse_lazy('mailing:message_list')
 
     def get_queryset(self):

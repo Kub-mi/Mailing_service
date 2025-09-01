@@ -23,7 +23,9 @@
             <a class="nav-link" href="{% url 'mailing:client_list' %}">Получатели</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Сообщения</a>
+            {% if user.is_authenticated %}
+              <a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a>
+            {% endif %}
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Рассылки</a>

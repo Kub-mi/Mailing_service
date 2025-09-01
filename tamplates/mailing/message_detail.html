@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Сообщение: {{ object.subject }}{% endblock %}
+{% block content %}
+<h1>{{ object.subject }}</h1>
+<pre class="p-3 bg-light border rounded">{{ object.body }}</pre>
+
+<a class="btn btn-outline-secondary" href="{% url 'mailing:message_list' %}">Назад</a>
+{% if object.owner == user or perms.mailing.view_all_messages %}
+  <a class="btn btn-primary" href="{% url 'mailing:message_update' object.pk %}">Изменить</a>
+  <a class="btn btn-danger" href="{% url 'mailing:message_delete' object.pk %}">Удалить</a>
+{% endif %}
+{% endblock %}
