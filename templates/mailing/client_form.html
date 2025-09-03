@@ -1,25 +1,31 @@
 {% extends "base.html" %}
-{% block title %}{% if object %}Изменить получателя{% else %}Добавить получателя{% endif %}{% endblock %}
+{% block title %}{% if object %}Изменить клиента{% else %}Создать клиента{% endif %}{% endblock %}
+
 {% block content %}
-<h1>{% if object %}Изменить получателя{% else %}Добавить получателя{% endif %}</h1>
+<h1 class="mb-3">{% if object %}Изменить клиента{% else %}Создать клиента{% endif %}</h1>
+
 <form method="post" novalidate>
   {% csrf_token %}
   {{ form.non_field_errors }}
+
   <div class="mb-3">
-    <label class="form-label">Email</label>
-    {{ form.email|add_class:"form-control" }}
-    {{ form.email.errors }}
+    <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+    {{ form.email }}
+    <div class="text-danger small">{{ form.email.errors }}</div>
   </div>
+
   <div class="mb-3">
-    <label class="form-label">ФИО</label>
-    {{ form.full_name|add_class:"form-control" }}
-    {{ form.full_name.errors }}
+    <label class="form-label" for="{{ form.full_name.id_for_label }}">Ф. И. О.</label>
+    {{ form.full_name }}
+    <div class="text-danger small">{{ form.full_name.errors }}</div>
   </div>
+
   <div class="mb-3">
-    <label class="form-label">Комментарий</label>
-    {{ form.comment|add_class:"form-control" }}
-    {{ form.comment.errors }}
+    <label class="form-label" for="{{ form.comment.id_for_label }}">Комментарий</label>
+    {{ form.comment }}
+    <div class="text-danger small">{{ form.comment.errors }}</div>
   </div>
+
   <button type="submit" class="btn btn-primary">Сохранить</button>
   <a class="btn btn-outline-secondary" href="{% url 'mailing:client_list' %}">Отмена</a>
 </form>

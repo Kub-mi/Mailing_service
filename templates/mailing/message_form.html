@@ -1,20 +1,24 @@
 {% extends "base.html" %}
 {% block title %}{% if object %}Изменить сообщение{% else %}Создать сообщение{% endif %}{% endblock %}
+
 {% block content %}
-<h1>{% if object %}Изменить сообщение{% else %}Создать сообщение{% endif %}</h1>
-<form method="post">
+<h1 class="mb-3">{% if object %}Изменить сообщение{% else %}Создать сообщение{% endif %}</h1>
+<form method="post" novalidate>
   {% csrf_token %}
   {{ form.non_field_errors }}
+
   <div class="mb-3">
-    <label class="form-label">Тема</label>
+    <label class="form-label" for="{{ form.subject.id_for_label }}">Тема</label>
     {{ form.subject }}
-    {{ form.subject.errors }}
+    <div class="text-danger small">{{ form.subject.errors }}</div>
   </div>
+
   <div class="mb-3">
-    <label class="form-label">Тело письма</label>
+    <label class="form-label" for="{{ form.body.id_for_label }}">Тело письма</label>
     {{ form.body }}
-    {{ form.body.errors }}
+    <div class="text-danger small">{{ form.body.errors }}</div>
   </div>
+
   <button type="submit" class="btn btn-primary">Сохранить</button>
   <a class="btn btn-outline-secondary" href="{% url 'mailing:message_list' %}">Отмена</a>
 </form>

@@ -14,9 +14,11 @@ class Client(models.Model):
         permissions =[
             ('view_all_clients', 'Can view all clients (manager)'),
         ]
+        ordering = ["-id"]
 
     def __str__(self):
         return f'{self.full_name} <{self.email}>'
+
 
 
 class Message(models.Model):
