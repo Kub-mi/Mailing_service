@@ -1,5 +1,6 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8">
     <title>{% block title %}Mailing Service{% endblock %}</title>
@@ -17,40 +18,20 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
+      <a class="navbar-brand" href="{% url 'pages:home' %}">Mailing</a>
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'mailing:client_list' %}">Получатели</a>
-          </li>
-          <li class="nav-item">
-            {% if user.is_authenticated %}
-              <a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a>
-            {% endif %}
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Рассылки</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Попытки</a>
-          </li>
+          <a class="nav-link" href="{% url 'mailing:client_list' %}">Получатели</a>
+          <a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a>
+          <a class="nav-link" href="{% url 'mailing:mailing_list' %}">Рассылки</a>
         {% endif %}
       </ul>
 
       <ul class="navbar-nav ms-auto">
         {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="#">Профиль</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:logout' %}">Выход</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выход</a></li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:login' %}">Вход</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:register' %}">Регистрация</a>
-          </li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'users:login' %}">Вход</a></li>
         {% endif %}
       </ul>
     </div>
