@@ -1,9 +1,14 @@
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.contrib import messages as dj_messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from .models import Client, Message, Mailing
 from .forms import ClientForm, MessageForm, MailingForm
+from .services import send_mailing
 
 
 PERM_VIEW_ALL = "mailing.view_all_clients"
@@ -202,3 +207,16 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
         if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
             return qs
         return qs.filter(owner=self.request.user)
+
+
+@login_required
+def send_mailing_view(request, pk):
+    mailing = get_object_or_404(Mailing, pk=pk)
+
+    if (mailing.owner_id != request.user.id) and (not request.user.has_perm('mailing.view_all_mailings')):
+        dj_messages.error(request, 'Нет доступа к этой рассылке')
+        return redirect('mailing:mailing_list')
+
+    sent_ok, total = send_mailing(mailing)
+    dj_messages.success(request, f'Отправлено {sent_ok} из {total}.')
+    return redirect(reverse('mailing:mailingdetail', args=[mailing/pk]))
