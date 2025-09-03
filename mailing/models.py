@@ -63,3 +63,29 @@ class Mailing (models.Model):
 
     def __str__(self):
         return f'Рассылка #{self.pk} - {self.status}'
+
+
+class Attempt(models.Model):
+    STATUS_SUCCESS = "Успешно"
+    STATUS_FAILED = "Не успешно"
+    STATUS_CHOICES = [
+        (STATUS_SUCCESS, "Успешно"),
+        (STATUS_FAILED, "Не успешно"),
+    ]
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата/время попытки")
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, verbose_name="Статус")
+    server_response = models.TextField(blank=True, verbose_name="Ответ почтового сервера")
+
+    mailing = models.ForeignKey(
+        "mailing.Mailing", on_delete=models.CASCADE, related_name="attempts", verbose_name="Рассылка"
+    )
+    # Поле клиента — не обязательно по ТЗ, но очень полезно для отчётов:
+    client = models.ForeignKey(
+        "mailing.Client", on_delete=models.SET_NULL, null=True, blank=True, related_name="attempts", verbose_name="Получатель"
+    )
+
+    class Meta:
+        verbose_name = "попытка рассылки"
+        verbose_name_plural = "попытки рассылок"
+        ordering = ["-created_at"]

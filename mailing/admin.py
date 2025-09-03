@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Client, Message, Mailing
+from .models import Client, Message, Mailing, Attempt
 
 
 @admin.register(Client)
@@ -22,3 +22,11 @@ class MailingAdmin(admin.ModelAdmin):
     list_filter = ("status", "owner")
     search_fields = ("id", "message__subject", "owner__email")
     filter_horizontal = ("recipients",)
+
+
+@admin.register(Attempt)
+class AttemptAdmin(admin.ModelAdmin):
+    list_display = ("id", "created_at", "status", "mailing", "client")
+    list_filter = ("status", "created_at")
+    search_fields = ("server_response", "mailing__id", "client__email")
+    autocomplete_fields = ("mailing", "client")

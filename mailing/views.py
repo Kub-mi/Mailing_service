@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-from .models import Client, Message, Mailing
+from .models import Client, Message, Mailing, Attempt
 from .forms import ClientForm, MessageForm, MailingForm
 from .services import send_mailing
 
@@ -169,6 +169,15 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
             return qs
         return qs.filter(owner=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        m = self.object
+        attempts = m.attempts.all()
+        ctx["attempts_total"] = attempts.count()
+        ctx["attempts_success"] = attempts.filter(status="Успешно").count()
+        ctx["attempts_failed"] = attempts.filter(status="Не успешно").count()
+        return ctx
+
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
@@ -220,3 +229,39 @@ def send_mailing_view(request, pk):
     sent_ok, total = send_mailing(mailing)
     dj_messages.success(request, f'Отправлено {sent_ok} из {total}.')
     return redirect(reverse('mailing:mailingdetail', args=[mailing/pk]))
+
+
+class AttemptListView(LoginRequiredMixin, ListView):
+    model = Attempt
+    template_name = "mailing/attempt_list.html"
+    context_object_name = "attempts"
+    paginate_by = 20
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related("mailing", "client", "mailing__owner")
+        # менеджер видит всё (по пермишену на рассылки), обычный — только свои (по owner рассылки)
+        if self.request.user.has_perm("mailing.view_all_mailings"):
+            return qs
+        return qs.filter(mailing__owner=self.request.user)
+
+
+class AttemptByMailingView(LoginRequiredMixin, ListView):
+    model = Attempt
+    template_name = "mailing/attempt_list.html"
+    context_object_name = "attempts"
+    paginate_by = 20
+
+    def get_queryset(self):
+        mailing_id = self.kwargs["pk"]
+        qs = (super()
+              .get_queryset()
+              .filter(mailing_id=mailing_id)
+              .select_related("mailing", "client", "mailing__owner"))
+        if self.request.user.has_perm("mailing.view_all_mailings"):
+            return qs
+        return qs.filter(mailing__owner=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["mailing_id"] = self.kwargs["pk"]
+        return ctx

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Попытки рассылок{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Попытки рассылок</h1>
+  {% if mailing_id %}
+    <a class="btn btn-outline-secondary" href="{% url 'mailing:mailing_detail' mailing_id %}">К рассылке #{{ mailing_id }}</a>
+  {% endif %}
+</div>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Дата/время</th>
+      <th>Статус</th>
+      <th>Рассылка</th>
+      <th>Получатель</th>
+      <th>Ответ сервера</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in attempts %}
+      <tr>
+        <td>{{ a.id }}</td>
+        <td>{{ a.created_at }}</td>
+        <td>
+          {% if a.status == "Успешно" %}
+            <span class="badge bg-success">Успешно</span>
+          {% else %}
+            <span class="badge bg-danger">Не успешно</span>
+          {% endif %}
+        </td>
+        <td><a href="{% url 'mailing:mailing_detail' a.mailing_id %}">#{{ a.mailing_id }}</a></td>
+        <td>{% if a.client %}{{ a.client.full_name }} &lt;{{ a.client.email }}&gt;{% else %}—{% endif %}</td>
+        <td class="text-break" style="max-width: 400px;">{{ a.server_response|default:"—" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">Записей пока нет</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
