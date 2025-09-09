@@ -3,8 +3,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages as dj_messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView
+from django.db.models import Count, Q
+from django.utils import timezone
+from datetime import datetime
 
 from .models import Client, Message, Mailing, Attempt
 from .forms import ClientForm, MessageForm, MailingForm
@@ -264,4 +268,97 @@ class AttemptByMailingView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["mailing_id"] = self.kwargs["pk"]
+        return ctx
+
+
+class StatsView(LoginRequiredMixin, TemplateView):
+    template_name = "mailing/stats.html"
+
+    def get_queryset_base(self, request):
+        """
+        Базовый queryset рассылок под текущего пользователя.
+        Менеджер (если есть право просмотра всех) видит все.
+        """
+        qs = Mailing.objects.all()
+        if not request.user.has_perm("mailing.view_all_mailings"):
+            qs = qs.filter(owner=request.user)
+        return qs
+
+    def get_date_bounds(self):
+        """
+        Читаем GET-параметры ?from=YYYY-MM-DD&to=YYYY-MM-DD
+        и возвращаем (date_from, date_to) в tz-aware границах.
+        """
+        date_from_str = self.request.GET.get("from")
+        date_to_str = self.request.GET.get("to")
+
+        date_from = None
+        date_to = None
+
+        if date_from_str:
+            try:
+                d = datetime.strptime(date_from_str, "%Y-%m-%d")
+                date_from = timezone.make_aware(datetime(d.year, d.month, d.day, 0, 0, 0))
+            except Exception:
+                pass
+
+        if date_to_str:
+            try:
+                d = datetime.strptime(date_to_str, "%Y-%m-%d")
+                # включаем весь день до 23:59:59
+                date_to = timezone.make_aware(datetime(d.year, d.month, d.day, 23, 59, 59))
+            except Exception:
+                pass
+
+        return date_from, date_to
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        request = self.request
+
+        mailings_qs = self.get_queryset_base(request)
+
+        # Счётчики верхнего уровня
+        total_mailings = mailings_qs.count()
+        active_mailings = mailings_qs.filter(status="Запущена").count()
+        total_messages = Message.objects.filter(
+            owner=request.user if not request.user.has_perm("mailing.view_all_mailings") else None
+        )
+        if hasattr(total_messages, "filter"):  # если None — вернётся Manager
+            total_messages = total_messages.filter(owner=request.user)
+        total_messages = total_messages.count() if hasattr(total_messages, "count") else Message.objects.count()
+
+        # Дата-фильтры для попыток
+        date_from, date_to = self.get_date_bounds()
+        attempts_filter = Q(mailing__in=mailings_qs)
+        if date_from:
+            attempts_filter &= Q(created_at__gte=date_from)  # поле даты в Attempt — поправь, если у тебя другое
+        if date_to:
+            attempts_filter &= Q(created_at__lte=date_to)
+
+        # Агрегация по попыткам в целом
+        agg = Attempt.objects.filter(attempts_filter).aggregate(
+            attempts_total=Count("id"),
+            attempts_success=Count("id", filter=Q(status="Успешно")),
+            attempts_failed=Count("id", filter=Q(status="Не успешно")),
+        )
+
+        # Разбивка по каждой рассылке
+        per_mailing = mailings_qs.annotate(
+            attempts_total=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter))),
+            attempts_success=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Успешно")),
+            attempts_failed=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Не успешно")),
+        ).select_related("message").order_by("-id")
+
+        ctx.update({
+            "total_mailings": total_mailings,
+            "active_mailings": active_mailings,
+            "total_messages": total_messages,
+            "attempts_total": agg.get("attempts_total", 0) or 0,
+            "attempts_success": agg.get("attempts_success", 0) or 0,
+            "attempts_failed": agg.get("attempts_failed", 0) or 0,
+            "per_mailing": per_mailing,
+            "date_from": self.request.GET.get("from", ""),
+            "date_to": self.request.GET.get("to", ""),
+        })
         return ctx

@@ -6,6 +6,8 @@ from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, View, TemplateView
+from django.conf import settings
+from django.core.mail import send_mail
 
 from .forms import SignUpForm
 
@@ -67,4 +69,26 @@ class ProfileView(TemplateView):
     Заглушка на будущее (п. интерфейса профиля).
     """
     template_name = "users/profile.html"
-
+def send_activation_email(self, user):
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    link = self.request.build_absolute_uri(
+        reverse("users:confirm_email", kwargs={"uidb64": uid, "token": token})
+    )
+    subject = "Подтверждение регистрации"
+    message = (
+        f"Здравствуйте, {user.first_name or ''}\n\n"
+        f"Для подтверждения email перейдите по ссылке:\n{link}\n\n"
+        f"Если вы не регистрировались — просто игнорируйте это письмо."
+    )
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        # Не валим 500, а показываем подсказку
+        dj_messages.error(self.request, f"Не удалось отправить письмо: {e}. Проверьте настройки почты.")

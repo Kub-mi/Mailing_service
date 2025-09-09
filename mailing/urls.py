@@ -5,6 +5,7 @@ from .views import (
     MessageUpdateView, MessageDeleteView, MailingListView, MailingCreateView, MailingDetailView, MailingUpdateView,
     MailingDeleteView, send_mailing_view, AttemptListView, AttemptByMailingView,
 )
+from .views import StatsView
 
 app_name = "mailing"
 
@@ -34,4 +35,6 @@ urlpatterns = [
     #attempt
     path("attempts/", AttemptListView.as_view(), name="attempt_list"),
     path("mailings/<int:pk>/attempts/", AttemptByMailingView.as_view(), name="attempt_list_by_mailing"),
+
+    path("stats/", StatsView.as_view(), name="stats"),
 ]
