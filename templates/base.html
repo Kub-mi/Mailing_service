@@ -37,6 +37,11 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'mailing:stats' %}">Статистика</a>
           </li>
+          <li class="nav-item">
+            {% if user.is_authenticated and perms.users.view_user_list %}
+              <a class="nav-link" href="{% url 'users:list' %}">Пользователи</a>
+            {% endif %}
+          </li>
 
         {% endif %}
       </ul>

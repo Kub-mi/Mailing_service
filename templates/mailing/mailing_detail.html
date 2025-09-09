@@ -6,7 +6,7 @@
   <h1 class="mb-0">Рассылка #{{ object.pk }}</h1>
   <div class="btn-group">
     <a class="btn btn-outline-secondary" href="{% url 'mailing:mailing_list' %}">Назад к списку</a>
-    {% if object.owner == user or perms.mailing.view_all_mailings %}
+    {% if object.owner_id == user.id %}
       <a class="btn btn-primary" href="{% url 'mailing:mailing_update' object.pk %}">Изменить</a>
       <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a>
       <a class="btn btn-success" href="{% url 'mailing:mailing_send' object.pk %}">Отправить сейчас</a>

@@ -7,7 +7,7 @@
 
 <div class="mt-3">
   <a class="btn btn-outline-secondary" href="{% url 'mailing:client_list' %}">Назад к списку</a>
-  {% if object.owner == user or perms.mailing.view_all_clients %}
+  {% if object.owner_id == user.id %}
     <a class="btn btn-primary" href="{% url 'mailing:client_update' object.pk %}">Изменить</a>
     <a class="btn btn-danger" href="{% url 'mailing:client_delete' object.pk %}">Удалить</a>
   {% endif %}

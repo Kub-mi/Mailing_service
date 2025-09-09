@@ -10,6 +10,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import datetime
 
+from .mixins import OwnerFilteredQuerysetMixin, OwnerOrManagerRequiredMixin
 from .models import Client, Message, Mailing, Attempt
 from .forms import ClientForm, MessageForm, MailingForm
 from .services import send_mailing
@@ -20,7 +21,7 @@ PERM_VIEW_ALL_MESSAGES = "mailing.view_all_messages"
 PERM_VIEW_ALL_MAILINGS = "mailing.view_all_mailings"
 
 
-class ClientListView(LoginRequiredMixin, ListView):
+class ClientListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Client
     template_name = 'mailing/client_list.html'
     context_object_name = 'clients'
@@ -33,7 +34,7 @@ class ClientListView(LoginRequiredMixin, ListView):
         return qs.filter(owner=self.request.user)
 
 
-class ClientDetailView(LoginRequiredMixin, DetailView):
+class ClientDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailView):
     model = Client
     template_name = 'mailing/client_detail.html'
 
@@ -57,7 +58,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ClientUpdateView(LoginRequiredMixin, UpdateView):
+class ClientUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
     template_name = 'mailing/client_form.html'
@@ -70,7 +71,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         return qs.filter(owner=self.request.user)
 
 
-class ClientDeleteView(LoginRequiredMixin, DeleteView):
+class ClientDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteView):
     model = Client
     template_name = 'mailing/confirm_delete.html'
     success_url = reverse_lazy('mailing:client_list')
@@ -82,7 +83,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
         return qs.filter(owner=self.request.user)
 
 
-class MessageListView(LoginRequiredMixin, ListView):
+class MessageListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Message
     template_name = 'mailing/message_list.html'
     context_object_name = 'message'
@@ -95,7 +96,7 @@ class MessageListView(LoginRequiredMixin, ListView):
         return qs.filter(owner=self.request.user)
 
 
-class MessageDetailView(LoginRequiredMixin, DetailView):
+class MessageDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailView):
     model = Message
     template_name = 'mailing/message_detail.html'
 
@@ -119,7 +120,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MessageUpdateView(LoginRequiredMixin, UpdateView):
+class MessageUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
     template_name = 'mailing/message_form.html'
@@ -132,7 +133,7 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
         return qs.filter(owner=self.request.user)
 
 
-class MessageDeleteView(LoginRequiredMixin, DeleteView):
+class MessageDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteView):
     model = Message
     template_name = 'mailing/confirm_delete.html'
     success_url = reverse_lazy('mailing:message_list')
@@ -144,7 +145,7 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
         return qs.filter(owner=self.request.user)
 
 
-class MailingListView(LoginRequiredMixin, ListView):
+class MailingListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Mailing
     template_name = "mailing/mailing_list.html"
     context_object_name = "mailings"
@@ -160,7 +161,7 @@ class MailingListView(LoginRequiredMixin, ListView):
         return qs.filter(owner=self.request.user)
 
 
-class MailingDetailView(LoginRequiredMixin, DetailView):
+class MailingDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_detail.html"
 
@@ -197,7 +198,7 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MailingUpdateView(LoginRequiredMixin, UpdateView):
+class MailingUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
     template_name = "mailing/mailing_form.html"
@@ -210,7 +211,7 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
         return qs.filter(owner=self.request.user)
 
 
-class MailingDeleteView(LoginRequiredMixin, DeleteView):
+class MailingDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteView):
     model = Mailing
     template_name = "mailing/confirm_delete.html"  # можно общий шаблон удаления
     success_url = reverse_lazy("mailing:mailing_list")

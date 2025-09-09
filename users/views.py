@@ -8,6 +8,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, View, TemplateView
 from django.conf import settings
 from django.core.mail import send_mail
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
+from django.contrib.auth.decorators import permission_required, login_required
 
 from .forms import SignUpForm
 
@@ -69,6 +73,8 @@ class ProfileView(TemplateView):
     Заглушка на будущее (п. интерфейса профиля).
     """
     template_name = "users/profile.html"
+
+
 def send_activation_email(self, user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
@@ -92,3 +98,28 @@ def send_activation_email(self, user):
     except Exception as e:
         # Не валим 500, а показываем подсказку
         dj_messages.error(self.request, f"Не удалось отправить письмо: {e}. Проверьте настройки почты.")
+
+
+class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    model = User
+    template_name = "users/user_list.html"
+    context_object_name = "users"
+    permission_required = "users.view_user_list"
+    paginate_by = 20
+    ordering = ["-date_joined"]
+
+
+@login_required
+@permission_required("users.block_users", raise_exception=True)
+def toggle_user_block(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if user == request.user:
+        messages.error(request, "Нельзя блокировать самого себя.")
+        return redirect("users:list")
+    user.is_active = not user.is_active
+    user.save(update_fields=["is_active"])
+    messages.success(
+        request,
+        f"Пользователь {user.email} {'разблокирован' if user.is_active else 'заблокирован'}."
+    )
+    return redirect("users:list")
