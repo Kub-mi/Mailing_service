@@ -1,9 +1,9 @@
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, cache_control
 from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages  # <-- правильный импорт сообщений
+from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required, permission_required
@@ -281,6 +281,7 @@ class AttemptByMailingView(LoginRequiredMixin, ListView):
         return ctx
 
 
+@method_decorator(cache_control(no_cache=True, no_store=True, must_revalidate=True), name="dispatch")
 class StatsView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/stats.html"
 
