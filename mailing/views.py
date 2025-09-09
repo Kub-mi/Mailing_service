@@ -229,13 +229,17 @@ class MailingDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteV
 def send_mailing_view(request, pk):
     mailing = get_object_or_404(Mailing, pk=pk)
 
+    if not mailing.is_enabled:
+        messages.error(request, "Эта рассылка отключена менеджером.")
+        return redirect("mailing:mailing_detail", pk=pk)
+
     if (mailing.owner_id != request.user.id) and (not request.user.has_perm('mailing.view_all_mailings')):
         dj_messages.error(request, 'Нет доступа к этой рассылке')
         return redirect('mailing:mailing_list')
 
     sent_ok, total = send_mailing(mailing)
     dj_messages.success(request, f'Отправлено {sent_ok} из {total}.')
-    return redirect(reverse('mailing:mailingdetail', args=[mailing/pk]))
+    return redirect("mailing:mailing_detail", pk=pk)
 
 
 class AttemptListView(LoginRequiredMixin, ListView):
