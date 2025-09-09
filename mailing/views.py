@@ -1,10 +1,12 @@
+from pyexpat.errors import messages
+
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages as dj_messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.generic import TemplateView
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -363,3 +365,16 @@ class StatsView(LoginRequiredMixin, TemplateView):
             "date_to": self.request.GET.get("to", ""),
         })
         return ctx
+
+
+@login_required
+@permission_required("mailing.disable_mailings", raise_exception=True)
+def mailing_toggle_enable(request, pk):
+    mailing = get_object_or_404(Mailing, pk=pk)
+    mailing.is_enabled = not mailing.is_enabled
+    mailing.save(update_fields=["is_enabled"])
+    messages.success(
+        request,
+        f"Рассылка #{mailing.pk} теперь {'включена' if mailing.is_enabled else 'отключена'}."
+    )
+    return redirect("mailing:mailing_detail", pk=pk)

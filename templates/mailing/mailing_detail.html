@@ -11,6 +11,11 @@
       <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a>
       <a class="btn btn-success" href="{% url 'mailing:mailing_send' object.pk %}">Отправить сейчас</a>
     {% endif %}
+    {% if perms.mailing.disable_mailings %}
+      <a class="btn btn-sm btn-outline-warning" href="{% url 'mailing:mailing_toggle_enable' object.pk %}">
+        {% if object.is_enabled %}Отключить рассылку{% else %}Включить рассылку{% endif %}
+      </a>
+    {% endif %}
   </div>
 </div>
 

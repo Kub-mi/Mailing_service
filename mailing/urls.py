@@ -5,7 +5,7 @@ from .views import (
     MessageUpdateView, MessageDeleteView, MailingListView, MailingCreateView, MailingDetailView, MailingUpdateView,
     MailingDeleteView, send_mailing_view, AttemptListView, AttemptByMailingView,
 )
-from .views import StatsView
+from .views import StatsView, mailing_toggle_enable
 
 app_name = "mailing"
 
@@ -37,4 +37,5 @@ urlpatterns = [
     path("mailings/<int:pk>/attempts/", AttemptByMailingView.as_view(), name="attempt_list_by_mailing"),
 
     path("stats/", StatsView.as_view(), name="stats"),
+    path("mailings/<int:pk>/toggle-enable/", mailing_toggle_enable, name="mailing_toggle_enable"),
 ]

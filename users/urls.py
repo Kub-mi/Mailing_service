@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import SignUpView, ConfirmEmailView
+from .views import SignUpView, ConfirmEmailView, toggle_user_block, UsersListView
 from .forms import EmailLoginForm
 
 app_name = "users"
