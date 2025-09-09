@@ -14,3 +14,9 @@ class CustomUser(AbstractUser):
     def __str__(self):
         # чтобы в админке и логах был наглядный вывод
         return self.email or self.username
+
+    class Meta:
+        permissions = [
+            ("view_user_list", "Может просматривать список пользователей"),
+            ("block_users", "Может блокировать/разблокировать пользователей"),
+        ]

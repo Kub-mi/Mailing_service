@@ -12,7 +12,7 @@ class Client(models.Model):
         verbose_name = 'получатель'
         verbose_name_plural = "получатели"
         permissions =[
-            ('view_all_clients', 'Can view all clients (manager)'),
+            ('view_all_clients', 'Может просматривать всех клиентов'),
         ]
         ordering = ["-id"]
 
@@ -30,7 +30,7 @@ class Message(models.Model):
         verbose_name = 'сообщение'
         verbose_name_plural = 'сообщения'
         permissions = [
-            ('view_all_messages', 'Can view all messages (manager)'),
+            ('view_all_messages', 'Может просматривать все сообщения'),
         ]
 
     def __str__(self):
@@ -52,13 +52,15 @@ class Mailing (models.Model):
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_CREATED, verbose_name='Статус')
     message = models.ForeignKey('mailing.Message', on_delete=models.CASCADE, verbose_name='Сообщение')
     recipients = models.ManyToManyField('mailing.Client', blank=True, related_name='mailings', verbose_name='Получатели')
+    is_enabled = models.BooleanField(default=True, verbose_name="Включена")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Владелец")
 
     class Meta:
         verbose_name = "рассылка"
         verbose_name_plural = "рассылки"
         permissions = [
-            ("view_all_mailings", "Can view all mailings (manager)"),
+            ("view_all_mailings", "Может просматривать все рассылки"),
+            ("disable_mailings", "Может отключать рассылки пользователей"),
         ]
 
     def __str__(self):
