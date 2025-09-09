@@ -23,6 +23,7 @@ PERM_VIEW_ALL_MESSAGES = "mailing.view_all_messages"
 PERM_VIEW_ALL_MAILINGS = "mailing.view_all_mailings"
 
 
+# --------- CLIENTS ---------
 class ClientListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Client
     template_name = 'mailing/client_list.html'
@@ -85,6 +86,7 @@ class ClientDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteVi
         return qs.filter(owner=self.request.user)
 
 
+# --------- MESSAGES ---------
 class MessageListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Message
     template_name = 'mailing/message_list.html'
@@ -147,6 +149,7 @@ class MessageDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteV
         return qs.filter(owner=self.request.user)
 
 
+# --------- MAILINGS ---------
 class MailingListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Mailing
     template_name = "mailing/mailing_list.html"
@@ -244,6 +247,7 @@ def send_mailing_view(request, pk):
     return redirect("mailing:mailing_detail", pk=pk)
 
 
+# --------- ATTEMPTS ---------
 @method_decorator([vary_on_cookie, cache_page(60, key_prefix="attempts")], name="dispatch")
 class AttemptListView(LoginRequiredMixin, ListView):
     model = Attempt
@@ -281,6 +285,7 @@ class AttemptByMailingView(LoginRequiredMixin, ListView):
         return ctx
 
 
+# --------- STATS (персональная, низкоуровневый кеш) ---------
 class StatsView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/stats.html"
 

@@ -1,7 +1,10 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 from mailing.models import Mailing, Client
 
 
+@method_decorator(cache_page(60 * 2, key_prefix="home"), name="dispatch")
 class HomeView(TemplateView):
     template_name = "pages/home.html"
 
