@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 
+
 class Command(BaseCommand):
     help = "Создаёт группу 'Менеджеры' и назначает ей права"
 
@@ -23,6 +24,12 @@ class Command(BaseCommand):
                 group.permissions.add(perm)
                 added += 1
             except Permission.DoesNotExist:
-                self.stdout.write(self.style.WARNING(f"Права {codename} не найдены (миграции применены?)"))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Права {codename} не найдены (миграции применены?)"
+                    )
+                )
 
-        self.stdout.write(self.style.SUCCESS(f"Группа 'Менеджеры' готова, назначено прав: {added}"))
+        self.stdout.write(
+            self.style.SUCCESS(f"Группа 'Менеджеры' готова, назначено прав: {added}")
+        )

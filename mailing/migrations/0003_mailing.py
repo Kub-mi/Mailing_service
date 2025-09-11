@@ -8,26 +8,76 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mailing', '0002_initial'),
+        ("mailing", "0002_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Mailing',
+            name="Mailing",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_at', models.DateTimeField(verbose_name='Дата/время первой отправки')),
-                ('finish_at', models.DateTimeField(verbose_name='Дата/время окончания отправок')),
-                ('status', models.CharField(choices=[('Создана', 'Создана'), ('Запущена', 'Запущена'), ('Завершена', 'Завершена')], default='Создана', max_length=16, verbose_name='Статус')),
-                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mailing.message', verbose_name='Сообщение')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Владелец')),
-                ('recipients', models.ManyToManyField(blank=True, related_name='mailings', to='mailing.client', verbose_name='Получатели')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "start_at",
+                    models.DateTimeField(verbose_name="Дата/время первой отправки"),
+                ),
+                (
+                    "finish_at",
+                    models.DateTimeField(verbose_name="Дата/время окончания отправок"),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("Создана", "Создана"),
+                            ("Запущена", "Запущена"),
+                            ("Завершена", "Завершена"),
+                        ],
+                        default="Создана",
+                        max_length=16,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "message",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mailing.message",
+                        verbose_name="Сообщение",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец",
+                    ),
+                ),
+                (
+                    "recipients",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="mailings",
+                        to="mailing.client",
+                        verbose_name="Получатели",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'рассылка',
-                'verbose_name_plural': 'рассылки',
-                'permissions': [('view_all_mailings', 'Can view all mailings (manager)')],
+                "verbose_name": "рассылка",
+                "verbose_name_plural": "рассылки",
+                "permissions": [
+                    ("view_all_mailings", "Can view all mailings (manager)")
+                ],
             },
         ),
     ]

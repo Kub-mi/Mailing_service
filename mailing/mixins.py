@@ -1,10 +1,12 @@
 from django.core.exceptions import PermissionDenied
 
+
 class OwnerOrManagerRequiredMixin:
     """
     Доступ к объекту: владелец или пользователь с правом глобального просмотра (менеджер).
     Для редактирования/удаления — менеджеру запрещаем менять чужие объекты (только просмотр).
     """
+
     manager_perm = None  # например: "mailing.view_all_clients"
 
     def has_manager_perm(self):
@@ -27,6 +29,7 @@ class OwnerFilteredQuerysetMixin:
     """
     В list/detail: пользователю показываем только своё, менеджеру — всё.
     """
+
     manager_perm = None
 
     def get_queryset(self):

@@ -7,35 +7,60 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Client',
+            name="Client",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=254, unique=True, verbose_name='Email')),
-                ('full_name', models.CharField(max_length=255, verbose_name='ФИО')),
-                ('comment', models.TextField(blank=True, verbose_name='Комментарий')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254, unique=True, verbose_name="Email"
+                    ),
+                ),
+                ("full_name", models.CharField(max_length=255, verbose_name="ФИО")),
+                ("comment", models.TextField(blank=True, verbose_name="Комментарий")),
             ],
             options={
-                'verbose_name': 'получатель',
-                'verbose_name_plural': 'получатели',
-                'permissions': [('view_all_clients', 'Can view all clients (manager)')],
+                "verbose_name": "получатель",
+                "verbose_name_plural": "получатели",
+                "permissions": [("view_all_clients", "Can view all clients (manager)")],
             },
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('subject', models.CharField(max_length=255, verbose_name='Тема письма')),
-                ('body', models.TextField(verbose_name='Тело письма')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "subject",
+                    models.CharField(max_length=255, verbose_name="Тема письма"),
+                ),
+                ("body", models.TextField(verbose_name="Тело письма")),
             ],
             options={
-                'verbose_name': 'сообщение',
-                'verbose_name_plural': 'сообщения',
-                'permissions': [('view_all_messages', 'Can view all messages (manager)')],
+                "verbose_name": "сообщение",
+                "verbose_name_plural": "сообщения",
+                "permissions": [
+                    ("view_all_messages", "Can view all messages (manager)")
+                ],
             },
         ),
     ]

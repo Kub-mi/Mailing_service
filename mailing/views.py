@@ -4,7 +4,14 @@ from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
+from django.views.generic import (
+    ListView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+    DetailView,
+    TemplateView,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Count, Q
@@ -25,8 +32,8 @@ PERM_VIEW_ALL_MAILINGS = "mailing.view_all_mailings"
 
 class ClientListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Client
-    template_name = 'mailing/client_list.html'
-    context_object_name = 'clients'
+    template_name = "mailing/client_list.html"
+    context_object_name = "clients"
     paginate_by = 10
 
     def get_queryset(self):
@@ -38,7 +45,7 @@ class ClientListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
 
 class ClientDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailView):
     model = Client
-    template_name = 'mailing/client_detail.html'
+    template_name = "mailing/client_detail.html"
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -63,8 +70,8 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
 class ClientUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
-    template_name = 'mailing/client_form.html'
-    success_url = reverse_lazy('mailing:client_list')
+    template_name = "mailing/client_form.html"
+    success_url = reverse_lazy("mailing:client_list")
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -75,8 +82,8 @@ class ClientUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateVi
 
 class ClientDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteView):
     model = Client
-    template_name = 'mailing/confirm_delete.html'
-    success_url = reverse_lazy('mailing:client_list')
+    template_name = "mailing/confirm_delete.html"
+    success_url = reverse_lazy("mailing:client_list")
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -87,8 +94,8 @@ class ClientDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteVi
 
 class MessageListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     model = Message
-    template_name = 'mailing/message_list.html'
-    context_object_name = 'message'
+    template_name = "mailing/message_list.html"
+    context_object_name = "message"
     paginate_by = 10
 
     def get_queryset(self):
@@ -100,7 +107,7 @@ class MessageListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
 
 class MessageDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailView):
     model = Message
-    template_name = 'mailing/message_detail.html'
+    template_name = "mailing/message_detail.html"
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -112,8 +119,8 @@ class MessageDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailVi
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
-    template_name = 'mailing/message_form.html'
-    success_url = reverse_lazy('mailing:message_list')
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:message_list")
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -125,8 +132,8 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 class MessageUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
-    template_name = 'mailing/message_form.html'
-    success_url = reverse_lazy('mailing:message_list')
+    template_name = "mailing/message_form.html"
+    success_url = reverse_lazy("mailing:message_list")
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -137,8 +144,8 @@ class MessageUpdateView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, UpdateV
 
 class MessageDeleteView(LoginRequiredMixin, OwnerOrManagerRequiredMixin, DeleteView):
     model = Message
-    template_name = 'mailing/confirm_delete.html'
-    success_url = reverse_lazy('mailing:message_list')
+    template_name = "mailing/confirm_delete.html"
+    success_url = reverse_lazy("mailing:message_list")
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -154,10 +161,12 @@ class MailingListView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        qs = (super()
-              .get_queryset()
-              .select_related("message", "owner")
-              .prefetch_related("recipients"))
+        qs = (
+            super()
+            .get_queryset()
+            .select_related("message", "owner")
+            .prefetch_related("recipients")
+        )
         if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
             return qs
         return qs.filter(owner=self.request.user)
@@ -168,10 +177,12 @@ class MailingDetailView(LoginRequiredMixin, OwnerFilteredQuerysetMixin, DetailVi
     template_name = "mailing/mailing_detail.html"
 
     def get_queryset(self):
-        qs = (super()
-              .get_queryset()
-              .select_related("message", "owner")
-              .prefetch_related("recipients"))
+        qs = (
+            super()
+            .get_queryset()
+            .select_related("message", "owner")
+            .prefetch_related("recipients")
+        )
         if self.request.user.has_perm(PERM_VIEW_ALL_MAILINGS):
             return qs
         return qs.filter(owner=self.request.user)
@@ -235,16 +246,20 @@ def send_mailing_view(request, pk):
         return redirect("mailing:mailing_detail", pk=pk)
 
     # проверка доступа: владелец или менеджер
-    if (mailing.owner_id != request.user.id) and (not request.user.has_perm('mailing.view_all_mailings')):
-        messages.error(request, 'Нет доступа к этой рассылке')
-        return redirect('mailing:mailing_list')
+    if (mailing.owner_id != request.user.id) and (
+        not request.user.has_perm("mailing.view_all_mailings")
+    ):
+        messages.error(request, "Нет доступа к этой рассылке")
+        return redirect("mailing:mailing_list")
 
     sent_ok, total = send_mailing(mailing)
-    messages.success(request, f'Отправлено {sent_ok} из {total}.')
+    messages.success(request, f"Отправлено {sent_ok} из {total}.")
     return redirect("mailing:mailing_detail", pk=pk)
 
 
-@method_decorator([vary_on_cookie, cache_page(60, key_prefix="attempts")], name="dispatch")
+@method_decorator(
+    [vary_on_cookie, cache_page(60, key_prefix="attempts")], name="dispatch"
+)
 class AttemptListView(LoginRequiredMixin, ListView):
     model = Attempt
     template_name = "mailing/attempt_list.html"
@@ -252,7 +267,9 @@ class AttemptListView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("mailing", "client", "mailing__owner")
+        qs = (
+            super().get_queryset().select_related("mailing", "client", "mailing__owner")
+        )
         # менеджер видит всё, обычный — только свои (по owner рассылки)
         if self.request.user.has_perm("mailing.view_all_mailings"):
             return qs
@@ -267,10 +284,12 @@ class AttemptByMailingView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         mailing_id = self.kwargs["pk"]
-        qs = (super()
-              .get_queryset()
-              .filter(mailing_id=mailing_id)
-              .select_related("mailing", "client", "mailing__owner"))
+        qs = (
+            super()
+            .get_queryset()
+            .filter(mailing_id=mailing_id)
+            .select_related("mailing", "client", "mailing__owner")
+        )
         if self.request.user.has_perm("mailing.view_all_mailings"):
             return qs
         return qs.filter(mailing__owner=self.request.user)
@@ -281,7 +300,9 @@ class AttemptByMailingView(LoginRequiredMixin, ListView):
         return ctx
 
 
-@method_decorator(cache_control(no_cache=True, no_store=True, must_revalidate=True), name="dispatch")
+@method_decorator(
+    cache_control(no_cache=True, no_store=True, must_revalidate=True), name="dispatch"
+)
 class StatsView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/stats.html"
 
@@ -309,7 +330,9 @@ class StatsView(LoginRequiredMixin, TemplateView):
         if date_from_str:
             try:
                 d = datetime.strptime(date_from_str, "%Y-%m-%d")
-                date_from = timezone.make_aware(datetime(d.year, d.month, d.day, 0, 0, 0))
+                date_from = timezone.make_aware(
+                    datetime(d.year, d.month, d.day, 0, 0, 0)
+                )
             except Exception:
                 pass
 
@@ -317,7 +340,9 @@ class StatsView(LoginRequiredMixin, TemplateView):
             try:
                 d = datetime.strptime(date_to_str, "%Y-%m-%d")
                 # включаем весь день до 23:59:59
-                date_to = timezone.make_aware(datetime(d.year, d.month, d.day, 23, 59, 59))
+                date_to = timezone.make_aware(
+                    datetime(d.year, d.month, d.day, 23, 59, 59)
+                )
             except Exception:
                 pass
 
@@ -342,11 +367,30 @@ class StatsView(LoginRequiredMixin, TemplateView):
                 attempts_filter &= Q(created_at__gte=date_from)
             if date_to:
                 attempts_filter &= Q(created_at__lte=date_to)
-            per_mailing = mailings_qs.annotate(
-                attempts_total=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter))),
-                attempts_success=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Успешно")),
-                attempts_failed=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Не успешно")),
-            ).select_related("message").order_by("-id")
+            per_mailing = (
+                mailings_qs.annotate(
+                    attempts_total=Count(
+                        "attempts",
+                        filter=Q(attempts__in=Attempt.objects.filter(attempts_filter)),
+                    ),
+                    attempts_success=Count(
+                        "attempts",
+                        filter=Q(
+                            attempts__in=Attempt.objects.filter(attempts_filter),
+                            attempts__status="Успешно",
+                        ),
+                    ),
+                    attempts_failed=Count(
+                        "attempts",
+                        filter=Q(
+                            attempts__in=Attempt.objects.filter(attempts_filter),
+                            attempts__status="Не успешно",
+                        ),
+                    ),
+                )
+                .select_related("message")
+                .order_by("-id")
+            )
             ctx["per_mailing"] = per_mailing
             return ctx
 
@@ -373,11 +417,30 @@ class StatsView(LoginRequiredMixin, TemplateView):
             attempts_failed=Count("id", filter=Q(status="Не успешно")),
         )
 
-        per_mailing = mailings_qs.annotate(
-            attempts_total=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter))),
-            attempts_success=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Успешно")),
-            attempts_failed=Count("attempts", filter=Q(attempts__in=Attempt.objects.filter(attempts_filter), attempts__status="Не успешно")),
-        ).select_related("message").order_by("-id")
+        per_mailing = (
+            mailings_qs.annotate(
+                attempts_total=Count(
+                    "attempts",
+                    filter=Q(attempts__in=Attempt.objects.filter(attempts_filter)),
+                ),
+                attempts_success=Count(
+                    "attempts",
+                    filter=Q(
+                        attempts__in=Attempt.objects.filter(attempts_filter),
+                        attempts__status="Успешно",
+                    ),
+                ),
+                attempts_failed=Count(
+                    "attempts",
+                    filter=Q(
+                        attempts__in=Attempt.objects.filter(attempts_filter),
+                        attempts__status="Не успешно",
+                    ),
+                ),
+            )
+            .select_related("message")
+            .order_by("-id")
+        )
 
         # кладём в кеш только сериализуемые агрегаты
         payload = {
@@ -406,6 +469,6 @@ def mailing_toggle_enable(request, pk):
     mailing.save(update_fields=["is_enabled"])
     messages.success(
         request,
-        f"Рассылка #{mailing.pk} теперь {'включена' if mailing.is_enabled else 'отключена'}."
+        f"Рассылка #{mailing.pk} теперь {'включена' if mailing.is_enabled else 'отключена'}.",
     )
     return redirect("mailing:mailing_detail", pk=pk)

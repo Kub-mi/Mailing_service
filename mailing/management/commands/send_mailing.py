@@ -10,7 +10,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--id", type=int, help="ID конкретной рассылки")
-        parser.add_argument("--due", action="store_true", help="Отправить все рассылки, у которых сейчас активное окно")
+        parser.add_argument(
+            "--due",
+            action="store_true",
+            help="Отправить все рассылки, у которых сейчас активное окно",
+        )
 
     def handle(self, *args, **options):
         if options["id"]:
@@ -18,7 +22,9 @@ class Command(BaseCommand):
             if not mailing:
                 raise CommandError("Рассылка с таким ID не найдена.")
             ok, total = send_mailing(mailing)
-            self.stdout.write(self.style.SUCCESS(f"[{mailing.pk}] Отправлено {ok} из {total}"))
+            self.stdout.write(
+                self.style.SUCCESS(f"[{mailing.pk}] Отправлено {ok} из {total}")
+            )
             return
 
         if options["due"]:
@@ -30,8 +36,12 @@ class Command(BaseCommand):
                 ok, total = send_mailing(m)
                 total_sent += ok
                 total_msgs += total
-                self.stdout.write(self.style.SUCCESS(f"[{m.pk}] Отправлено {ok} из {total}"))
-            self.stdout.write(self.style.SUCCESS(f"ИТОГО: {total_sent} из {total_msgs}"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"[{m.pk}] Отправлено {ok} из {total}")
+                )
+            self.stdout.write(
+                self.style.SUCCESS(f"ИТОГО: {total_sent} из {total_msgs}")
+            )
             return
 
         raise CommandError("Укажи --id <ID> или --due")

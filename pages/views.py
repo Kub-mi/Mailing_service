@@ -20,9 +20,11 @@ class HomeView(TemplateView):
         # Уникальные получатели (по email)
         unique_recipients = Client.objects.values("email").distinct().count()
 
-        ctx.update({
-            "total_mailings": total_mailings,
-            "active_mailings": active_mailings,
-            "unique_recipients": unique_recipients,
-        })
+        ctx.update(
+            {
+                "total_mailings": total_mailings,
+                "active_mailings": active_mailings,
+                "unique_recipients": unique_recipients,
+            }
+        )
         return ctx

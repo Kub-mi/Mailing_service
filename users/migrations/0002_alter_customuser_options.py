@@ -6,12 +6,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_initial'),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='customuser',
-            options={'permissions': [('view_user_list', 'Может просматривать список пользователей'), ('block_users', 'Может блокировать/разблокировать пользователей')]},
+            name="customuser",
+            options={
+                "permissions": [
+                    ("view_user_list", "Может просматривать список пользователей"),
+                    ("block_users", "Может блокировать/разблокировать пользователей"),
+                ]
+            },
         ),
     ]

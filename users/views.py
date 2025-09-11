@@ -32,11 +32,14 @@ class SignUpView(CreateView):
 
         # Шлём письмо с подтверждением
         self.send_activation_email(user)
-        dj_messages.success(self.request, "Мы отправили письмо с подтверждением на ваш email.")
+        dj_messages.success(
+            self.request, "Мы отправили письмо с подтверждением на ваш email."
+        )
         return super().form_valid(form)
 
     def send_activation_email(self, user):
         from django.core.mail import send_mail
+
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         link = self.request.build_absolute_uri(
@@ -72,6 +75,7 @@ class ProfileView(TemplateView):
     """
     Заглушка на будущее (п. интерфейса профиля).
     """
+
     template_name = "users/profile.html"
 
 
@@ -97,7 +101,10 @@ def send_activation_email(self, user):
         )
     except Exception as e:
         # Не валим 500, а показываем подсказку
-        dj_messages.error(self.request, f"Не удалось отправить письмо: {e}. Проверьте настройки почты.")
+        dj_messages.error(
+            self.request,
+            f"Не удалось отправить письмо: {e}. Проверьте настройки почты.",
+        )
 
 
 class UsersListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -120,6 +127,6 @@ def toggle_user_block(request, pk):
     user.save(update_fields=["is_active"])
     messages.success(
         request,
-        f"Пользователь {user.email} {'разблокирован' if user.is_active else 'заблокирован'}."
+        f"Пользователь {user.email} {'разблокирован' if user.is_active else 'заблокирован'}.",
     )
     return redirect("users:list")

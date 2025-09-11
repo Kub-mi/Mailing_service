@@ -1,9 +1,19 @@
-.venv/
-__pycache__/
-*.pyc
-.DS_Store
-*.sqlite3
+# venv / pycache
+venv/
 .env
+*.pyc
+__pycache__/
+
+# Django/collectstatic
 staticfiles/
-#media/
-.flake8
+media/
+
+# IDE
+.idea/
+.vscode/
+
+# DB
+*.sqlite3
+
+# Celery
+celerybeat-schedule
