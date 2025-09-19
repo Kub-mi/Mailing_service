@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Рассылка #{{ object.pk }}{% endblock %}
+{% load cache %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Рассылка #{{ object.pk }}</h1>
+  <div class="btn-group">
+    <a class="btn btn-outline-secondary" href="{% url 'mailing:mailing_list' %}">Назад к списку</a>
+    {% if object.owner_id == user.id %}
+      <a class="btn btn-primary" href="{% url 'mailing:mailing_update' object.pk %}">Изменить</a>
+      <a class="btn btn-danger" href="{% url 'mailing:mailing_delete' object.pk %}">Удалить</a>
+      <a class="btn btn-success" href="{% url 'mailing:mailing_send' object.pk %}">Отправить сейчас</a>
+    {% endif %}
+    {% if perms.mailing.disable_mailings %}
+      <a class="btn btn-sm btn-outline-warning" href="{% url 'mailing:mailing_toggle_enable' object.pk %}">
+        {% if object.is_enabled %}Отключить рассылку{% else %}Включить рассылку{% endif %}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{# Карточка с основными полями #}
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="mb-2">
+      <strong>Статус:</strong>
+      {% if object.status == "Запущена" %}
+        <span class="badge bg-success">Запущена</span>
+      {% elif object.status == "Создана" %}
+        <span class="badge bg-secondary">Создана</span>
+      {% else %}
+        <span class="badge bg-dark">Завершена</span>
+      {% endif %}
+    </div>
+
+    <div class="mb-2">
+      <strong>Период:</strong>
+      {{ object.start_at }} — {{ object.finish_at }}
+    </div>
+
+    <div class="mb-2">
+      <strong>Сообщение:</strong>
+      <a href="{% url 'mailing:message_detail' object.message.pk %}">
+        {{ object.message.subject }}
+      </a>
+    </div>
+
+    <div>
+      <strong>Получатели ({{ object.recipients.count }}):</strong>
+      {% if object.recipients.exists %}
+        <ul class="mb-0">
+          {% for r in object.recipients.all %}
+            <li>{{ r.full_name }} &lt;{{ r.email }}&gt;</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <span class="text-muted">—</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% cache 60 "attempts_summary" object.pk attempts_total attempts_success attempts_failed %}
+<div class="card mb-3">
+  <div class="card-body d-flex align-items-center justify-content-between">
+    <div>
+      <strong>Статистика попыток:</strong>
+      <span class="badge bg-secondary ms-2">Всего: {{ attempts_total|default:0 }}</span>
+      <span class="badge bg-success ms-1">Успешно: {{ attempts_success|default:0 }}</span>
+      <span class="badge bg-danger ms-1">Не успешно: {{ attempts_failed|default:0 }}</span>
+    </div>
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'mailing:attempt_list_by_mailing' object.pk %}">
+      Смотреть все попытки
+    </a>
+  </div>
+</div>
+{% endcache %}
+{% endblock %}
